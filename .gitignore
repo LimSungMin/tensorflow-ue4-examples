@@ -72,3 +72,6 @@ Releases/*
 Content/Scripts/model/*
 !Content/Scripts/model/.gitkeep
 Content/Scripts/dataset
+
+# pycharm
+Content/Scripts/.idea/
