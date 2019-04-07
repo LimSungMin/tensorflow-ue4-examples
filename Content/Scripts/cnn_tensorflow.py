@@ -84,7 +84,7 @@ class CNN:
     optimizer = tf.train.GradientDescentOptimizer(learning_rate = self.lr)
 
     self.train_op = optimizer.minimize(self.loss)
-    init = tf.initialize_all_variables()
+    init = tf.global_variables_initializer()
     session = tf.Session()
     session.run(init)
 
