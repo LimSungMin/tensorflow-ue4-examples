@@ -14,6 +14,8 @@ class ExampleAPI(TFPluginAPI):
 
 	#expected optional api: setup your model for training
 	def onSetup(self):
+		tf.keras.backend.clear_session()
+
 		self.sess = tf.InteractiveSession()
 		#self.graph = tf.get_default_graph()
 
