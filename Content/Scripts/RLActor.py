@@ -9,7 +9,7 @@ import numpy as np
 from DQNAgent import DQNAgent
 
 action_map = {}
-action_arr = [3, 3, 2]
+action_arr = [3, 3, 2] # MoveForward, MoveRight, Attack
 index = 0
 
 for depth1 in range(action_arr[0]):
@@ -27,14 +27,14 @@ class RLActorAPI(TFPluginAPI):
     def onSetup(self):
         ue.log('On Setup!')
         self.num_actions =18
-        null_input = np.zeros(3)
-        self.state_size = null_input.shape[0]
+        state_input = np.zeros(1)
+        self.state_size = state_input.shape[0]
         self.model = DQNAgent(state_size=self.state_size, action_size=self.num_actions)
 
         self.scores = []
         self.episodes = []
 
-        self.state = np.reshape(null_input, [1, self.state_size])
+        self.state = np.reshape(state_input, [1, self.state_size])
         self.action = 0
 
     # expected optional api: parse input object and return a result object, which will be converted to json for UE4
@@ -42,12 +42,10 @@ class RLActorAPI(TFPluginAPI):
         # LSM BEGIN
         action = self.model.get_action(self.state)
         self.model.append_sample(state=self.state, action=action, reward=0, next_state=self.state, done=False)
-        '''
-        ballPos = jsonInput['ballPosition']
-        next_state = [jsonInput['paddlePosition'], ballPos['x'], ballPos['y']]
-        reward = jsonInput['actionScore']
+
+        next_state = [jsonInput['distance_to_target']]
+        reward = jsonInput['distance_to_target']
         done = jsonInput['done']
-        
         next_state = np.reshape(next_state, [1, self.state_size])
 
         self.model.append_sample(state=self.state, action=action, reward=reward, next_state=next_state, done=done)
@@ -58,7 +56,7 @@ class RLActorAPI(TFPluginAPI):
 
         if done:
             self.model.update_target_model()
-        '''
+
         return {
             'MoveForward': action_map[action][0],
             'MoveRight' : action_map[action][1],
