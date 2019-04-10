@@ -27,7 +27,7 @@ class RLActorAPI(TFPluginAPI):
     def onSetup(self):
         ue.log('On Setup!')
         self.num_actions =18
-        state_input = np.zeros(1)
+        state_input = np.zeros(3)
         self.state_size = state_input.shape[0]
         self.model = DQNAgent(state_size=self.state_size, action_size=self.num_actions)
 
@@ -42,9 +42,16 @@ class RLActorAPI(TFPluginAPI):
 
         action = self.model.get_action(self.state)
 
-        next_state = [jsonInput['distance_to_target']]
-        reward = jsonInput['distance_to_target']
+        next_state = [
+            jsonInput['distance_to_target'],
+            jsonInput['my_health'],
+            jsonInput['time_alive']
+        ]
+        reward = jsonInput['reward']
         done = jsonInput['done']
+
+        ue.log('Reward :::::::: ' + str(reward))
+
         next_state = np.reshape(next_state, [1, self.state_size])
 
         self.model.append_sample(state=self.state, action=action, reward=reward, next_state=next_state, done=done)
@@ -54,6 +61,7 @@ class RLActorAPI(TFPluginAPI):
             self.model.train_model()
 
         if done:
+            ue.log('Update Target Model')
             self.model.update_target_model()
 
         return {
@@ -69,7 +77,7 @@ class RLActorAPI(TFPluginAPI):
     def ClearSession(self, jsonInput):
         ue.log('Clear Session Called')
         tf.keras.backend.clear_session()
-        self.model.clear_session()
+        # self.model.clear_session()
 
 
 # required function to get our api
