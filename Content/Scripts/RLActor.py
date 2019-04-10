@@ -39,9 +39,8 @@ class RLActorAPI(TFPluginAPI):
 
     # expected optional api: parse input object and return a result object, which will be converted to json for UE4
     def onJsonInput(self, jsonInput):
-        # LSM BEGIN
+
         action = self.model.get_action(self.state)
-        self.model.append_sample(state=self.state, action=action, reward=0, next_state=self.state, done=False)
 
         next_state = [jsonInput['distance_to_target']]
         reward = jsonInput['distance_to_target']
@@ -66,6 +65,11 @@ class RLActorAPI(TFPluginAPI):
     # expected optional api: start training your network
     def onBeginTraining(self):
         pass
+
+    def ClearSession(self, jsonInput):
+        ue.log('Clear Session Called')
+        tf.keras.backend.clear_session()
+        self.model.clear_session()
 
 
 # required function to get our api

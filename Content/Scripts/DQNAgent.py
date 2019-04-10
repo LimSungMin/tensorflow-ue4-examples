@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import Dense
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Sequential
+from numba import cuda
 
 EPISODES = 2000
 
@@ -109,6 +110,6 @@ class DQNAgent:
             self.model.fit(states, target, batch_size=self.batch_size,
                            epochs=1, verbose=0)
 
-
-
-
+    def clear_session(self):
+        cuda.select_device(0)
+        cuda.close()
