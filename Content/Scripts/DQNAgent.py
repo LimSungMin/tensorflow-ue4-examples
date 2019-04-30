@@ -2,12 +2,16 @@ import random
 import numpy as np
 from collections import deque
 import tensorflow as tf
+from tensorflow.python.keras.callbacks import TensorBoard
 from tensorflow.python.keras.layers import Dense
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Sequential
 from numba import cuda
+from time import time
 
 EPISODES = 2000
+
+model_path = './save_model/RLActor.h5'
 
 # 카트폴 예제에서의 DQN 에이전트
 class DQNAgent:
@@ -30,7 +34,7 @@ class DQNAgent:
         self.train_start = 1000
 
         # 리플레이 메모리, 최대 크기 2000
-        self.memory = deque(maxlen=10000)
+        self.memory = deque(maxlen=2000)
 
         # 모델과 타깃 모델 생성
         self.model = self.build_model()
@@ -41,7 +45,9 @@ class DQNAgent:
         self.graph = tf.get_default_graph()
 
         if self.load_model:
-            self.model.load_weights("./save_model/cartpole_dqn_trained.h5")
+            self.model.load_weights(model_path)
+
+        self.tensorboard = TensorBoard(log_dir="./logs/{}".format(time()))
 
     # 상태가 입력, 큐함수가 출력인 인공신경망 생성
     def build_model(self):
@@ -108,7 +114,7 @@ class DQNAgent:
                         np.amax(target_val[i]))
 
             self.model.fit(states, target, batch_size=self.batch_size,
-                           epochs=1, verbose=0)
+                           epochs=1, verbose=0, callbacks=[self.tensorboard])
 
     def clear_session(self):
         cuda.select_device(0)
